@@ -28,7 +28,7 @@ namespace Controller
             CurrentRace = currentRace;
             CalcMaxXY(currentRace.Track);
 
-            Console.SetWindowSize(Maxwidth * 2, MaxHeight);
+            Console.SetWindowSize(Maxwidth +50 , MaxHeight);
             Console.SetCursorPosition(CursorX, CursorY);
         }
 
@@ -204,11 +204,16 @@ namespace Controller
             Direction %= 4;
         }
 
+        private static void OnDriverChanged(object sender, DriversChangedEventArgs e)
+        {
+            DrawTrack(e.Track);
+        }
+
         public static void OnNextRace(object sender, NextRaceEventArgs e)
         {
             Initialize(e.Race);
 
-            //CurrentRace.DriverChanged += OnDriverChanged;
+            CurrentRace.DriverChanged += OnDriverChanged;
 
         }
 

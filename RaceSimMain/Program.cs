@@ -10,7 +10,7 @@ namespace RaceSimMain
             Data.Initialize(new Competition());
             Data.NextRaceEvent += Visualisatie.OnNextRace;
             Data.NextRace();
-            Visualisatie.DrawTrack(Data.CurrentRace.Track);
+            //Visualisatie.DrawTrack(Data.CurrentRace.Track);
             //Console.WriteLine(Data.CurrentRace.Track.Name);
             for (; ; )
             {

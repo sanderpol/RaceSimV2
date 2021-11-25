@@ -24,7 +24,7 @@ namespace Controller
                 CurrentRace = new Race(nextTrack, Competition.Participants);
                 CurrentRace.SetStartGrid(Competition.Participants);
                 NextRaceEvent?.Invoke(null, new NextRaceEventArgs() { Race = CurrentRace });
-                //CurrentRace.StartRace();
+                CurrentRace.StartRace();
             }
         }
 
