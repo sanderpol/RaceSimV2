@@ -14,7 +14,7 @@ namespace Controller
         private const int TileWidth = 8;
         private const int TileHeight = 5;
 
-        private static int Maxwidth;
+        private static int MaxWidth;
         private static int MaxHeight;
 
         private static int CursorX;
@@ -27,8 +27,9 @@ namespace Controller
         {
             CurrentRace = currentRace;
             CalcMaxXY(currentRace.Track);
-
-            Console.SetWindowSize(Maxwidth +50 , MaxHeight);
+            var max = Console.LargestWindowHeight;
+            var maxd = Console.LargestWindowWidth;
+            Console.SetWindowSize(MaxWidth, Console.LargestWindowHeight);
             Console.SetCursorPosition(CursorX, CursorY);
         }
 
@@ -37,8 +38,10 @@ namespace Controller
             foreach (var section in track.Sections)
             {
                 var sectionData = CurrentRace.GetSectionData(section);
+                string? leftString = GetParticpantStringName(sectionData, isLeft: true);
+                string? rightString = GetParticpantStringName(sectionData, isLeft: false);
 
-                var sectionStrings = SetSectionString(GetSingleSectionStringArray(section.SectionType), sectionData.Left?.Name, sectionData.Right?.Name);
+                var sectionStrings = SetSectionString(GetSingleSectionStringArray(section.SectionType), leftString,rightString);
                 var lineY = CursorY;
                 foreach (var line in sectionStrings)
                 {
@@ -46,8 +49,23 @@ namespace Controller
                     Console.WriteLine(line);
                     lineY += 1;
                 }
-                SetNew_direction(section.SectionType);
+                Direction = SetNew_direction(section.SectionType, Direction);
                 SetNewCursorPos();
+            }
+        }
+
+        private static string? GetParticpantStringName(SectionData sectionData, bool isLeft)
+        {
+            if (isLeft && sectionData.Left != null)
+            {
+                return sectionData.Left.Equipment.IsBroken ? "xx" : sectionData.Left.Name;
+            } else if(!isLeft && sectionData.Right != null)
+            {
+                return sectionData.Right.Equipment.IsBroken ? "xx" : sectionData.Right.Name;
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -79,8 +97,8 @@ namespace Controller
                 },
                 SectionTypes.StartGrid => (Direction % 2) switch
                 {
-                    0 => straightVer,
-                    1 => straightHor,
+                    0 => startVer,
+                    1 => startHor,
                     _ => throw new NotImplementedException()
                 },
                 SectionTypes.Finish => (Direction % 2) switch
@@ -163,7 +181,7 @@ namespace Controller
                 switch (Direction)
                 {
                     case 0:
-                        y += TileHeight;
+                        y -= TileHeight;
                         if (y > maxY) maxY = y;
                         break;
                     case 1:
@@ -171,37 +189,38 @@ namespace Controller
                         if (x > maxX) maxX = x;
                         break;
                     case 2:
-                        y -= TileHeight;
+                        y += TileHeight;
                         if (y < minY) minY = y;
                         break;
                     case 3:
-                        y -= TileWidth;
+                        x -= TileWidth;
                         if (x < minX) minX = x;
                         break;
                 }
 
-                SetNew_direction(section.SectionType);
+                Direction =  SetNew_direction(section.SectionType, Direction);
             }
 
-            CursorX = -minX + 2;
-            CursorY = maxY + 2;
+            CursorX = -minX;
+            CursorY = -minY + TileHeight + 1;
 
-            Maxwidth = maxX - minX;
+            MaxWidth = maxX - minX + 15;
             MaxHeight = maxY - minY;
         }
-        private static void SetNew_direction(SectionTypes sectionType)
+        public static int SetNew_direction(SectionTypes sectionType, int dir)
         {
             switch (sectionType)
             {
                 case SectionTypes.LeftCorner:
-                    Direction -= 1;
+                    if(dir == 0) return 3;
+                    dir -= 1;
                     break;
                 case SectionTypes.RightCorner:
-                    Direction += 1;
+                    dir += 1;
                     break;
             }
 
-            Direction %= 4;
+            return dir %= 4;
         }
 
         private static void OnDriverChanged(object sender, DriversChangedEventArgs e)

@@ -49,7 +49,7 @@ namespace Controller
 
         public static void AddTracks()
         {
-            var elburg = new Track("Circuit Elburg", 0,
+            var elburg = new Track("Circuit Elburg", 0, 3,
                 new SectionTypes[]
                 {
                     SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.RightCorner, SectionTypes.Straight,
@@ -60,28 +60,28 @@ namespace Controller
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner,
                     SectionTypes.Straight, SectionTypes.StartGrid
                 });
-            var oostendorp = new Track("Oostendorp", 0,
+            var oostendorp = new Track("Oostendorp", 0, 2,
                 new SectionTypes[]
                 {
                     SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish,
                     SectionTypes.Straight,
-                    SectionTypes.LeftCorner, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
+                    SectionTypes.LeftCorner, SectionTypes.Straight, 
                     SectionTypes.RightCorner, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner,
-                    SectionTypes.Straight, SectionTypes.RightCorner,
+                    SectionTypes.RightCorner,
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
                     SectionTypes.Straight,
-                    SectionTypes.LeftCorner, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
+                    SectionTypes.LeftCorner, 
                     SectionTypes.Straight, SectionTypes.LeftCorner, SectionTypes.Straight, SectionTypes.Straight,
                     SectionTypes.Straight, SectionTypes.RightCorner,
                     SectionTypes.RightCorner, SectionTypes.LeftCorner, SectionTypes.LeftCorner,
                     SectionTypes.RightCorner, SectionTypes.RightCorner, SectionTypes.Straight, SectionTypes.Straight,
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
                     SectionTypes.RightCorner, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight,
-                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner, SectionTypes.Straight,
+                    SectionTypes.RightCorner, SectionTypes.Straight,
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight
                 });
-            var figure0 = new Track("Figure_0", 0,
+            var figure0 = new Track("Figure_0", 0, 5,
                 new[]
                 {
                     SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.RightCorner,
@@ -89,6 +89,7 @@ namespace Controller
                     SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner, SectionTypes.Straight,
                     SectionTypes.Straight, SectionTypes.RightCorner
                 });
+
 
             Competition.Tracks.Enqueue(elburg);
             Competition.Tracks.Enqueue(oostendorp);

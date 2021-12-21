@@ -5,10 +5,13 @@
         public string Name { get; set; }
         public LinkedList<Section> Sections { get; set; }
         public int StartingDirection { get; set; }
+        public int TotalLaps { get; set; }
 
-        public Track(string name, int v, SectionTypes[] sections)
+        public Track(string name, int dir, int totalLap, SectionTypes[] sections)
         {
             Name = name;
+            StartingDirection = dir;
+            TotalLaps = totalLap;
             Sections = SectionTypesToSections(sections);
         }
 

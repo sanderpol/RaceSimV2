@@ -10,8 +10,9 @@ namespace Controller
     {
         public Track Track { get; set; }
         public List<IParticipant> Participants { get; set; }
+        
         public DateTime StartTime { get; set; }
-        public System.Timers.Timer Timer { get; set; } = new System.Timers.Timer(50);
+        public System.Timers.Timer Timer { get; set; } = new System.Timers.Timer(150);
         public Random Random { get; set; }
 
 
@@ -20,6 +21,8 @@ namespace Controller
 
         //FinishData
         private Dictionary<IParticipant, int> LapsDriven { get; set; }
+        public int TotalFinishers { get; set; }
+        public bool FinshFlag { get; set; }
         public bool RaceFinished { get; set; }
 
 
@@ -43,18 +46,59 @@ namespace Controller
         private void CleanUp()
         {
             RaceFinished = false;
+            FinshFlag = false;
             LapsDriven = new Dictionary<IParticipant, int>();
             Participants.ForEach(item => LapsDriven.Add(item, 1));
+            TotalFinishers = 0;
+
 
         }
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            //CheckDriverFinished();
-            MoveDrivers(e.SignalTime);
+            CheckDriverFinished();
+            MoveDrivers();
+            RandomizeBreakOrRepair();
 
             DriverChanged?.Invoke(this, new DriversChangedEventArgs() { Track = this.Track });
-            //if (RaceFinished) RaceFinishedEvent?.Invoke(this, new EventArgs());
+            if (RaceFinished) Console.WriteLine(RaceFinished);
+            //RaceFinishedEvent?.Invoke(this, new EventArgs());
+        }
+
+        private void CheckDriverFinished()
+        {
+            if (TotalFinishers == Participants.Count) RaceFinished = true;
+            if (LapsDriven.Where(item => item.Value == Track.TotalLaps).Count() > 0) FinshFlag = true;
+            if(LapsDriven.All(item => item.Value > Track.TotalLaps)) RaceFinished = true;
+        }
+
+        private void RandomizeBreakOrRepair()
+        {
+            const int constChance = 10;
+            foreach (var particpant in Participants){
+                if (particpant.Equipment.IsBroken)
+                {
+                    if(Random.Next(0,5) == 0)
+                    {
+                        particpant.Equipment.IsBroken = false;
+                        particpant.Equipment.Quality = Random.Next(45, 61);
+                    }
+                }
+                else
+                {
+                    var chance = constChance + particpant.Equipment.Quality;
+                    if (Random.Next(0, chance) == chance - 1)
+                    {
+                        particpant.Equipment.IsBroken = true;
+                    }
+                    else
+                    {
+                        if (particpant.Equipment.Quality >= constChance) { 
+                        particpant.Equipment.Quality -= 4;
+                        }
+                    }
+                }
+            }
         }
 
         public SectionData GetSectionData(Section section)
@@ -124,7 +168,7 @@ namespace Controller
                 sectionData.Right = participant;
         }
 
-        private void MoveDrivers(DateTime elapesdDateTime)
+        private void MoveDrivers()
         {
             LinkedListNode<Section> sectionNodes = Track.Sections.Last;
 
@@ -136,7 +180,7 @@ namespace Controller
                 var targetPos = GetSectionData(targetSection);
 
 
-                if (currentPos.Left != null)
+                if (currentPos.Left != null && !currentPos.Left.Equipment.IsBroken)
                 {
                     currentPos.DistanceLeft = SetSectionDistance(currentPos.Left, currentPos.DistanceLeft);
                 }
@@ -146,7 +190,7 @@ namespace Controller
                     MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, true);
                 }
 
-                if (currentPos.Right != null)
+                if (currentPos.Right != null && !currentPos.Right.Equipment.IsBroken)
                 {
                     currentPos.DistanceRight = SetSectionDistance(currentPos.Right, currentPos.DistanceRight);
                 }
@@ -230,6 +274,10 @@ namespace Controller
 
         private void AddLapToDriver(IParticipant driver)
         {
+            if (FinshFlag)
+            {
+                TotalFinishers += 1;
+            }
             LapsDriven[driver] += 1;
         }
 
