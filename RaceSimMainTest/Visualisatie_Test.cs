@@ -13,7 +13,7 @@ namespace RaceSimMainTest
         [SetUp]
         public void Setup()
         {
-            TestTrack = new Track("StartGrid", 1, new SectionTypes[]
+            TestTrack = new Track("StartGrid", 1,1, new SectionTypes[]
                 {
                     SectionTypes.StartGrid, SectionTypes.StartGrid
                 });

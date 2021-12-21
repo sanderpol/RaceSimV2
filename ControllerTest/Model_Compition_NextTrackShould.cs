@@ -14,7 +14,7 @@ namespace ControllerTest
         public void SetUp()
         {
             _competition = new Competition();
-            elburg = new Track("Circuit Elburg", 0, new SectionTypes[]
+            elburg = new Track("Circuit Elburg", 0,3, new SectionTypes[]
                 {
                     SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.RightCorner, SectionTypes.Straight,
                     SectionTypes.LeftCorner, SectionTypes.Straight,
@@ -26,7 +26,7 @@ namespace ControllerTest
                     SectionTypes.StartGrid, SectionTypes.StartGrid
                 });
 
-            oostendorp = new Track("Oostendorp", 0, new SectionTypes[]
+            oostendorp = new Track("Oostendorp", 0,2, new SectionTypes[]
                 {
                     SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish,
                     SectionTypes.Straight, SectionTypes.LeftCorner,

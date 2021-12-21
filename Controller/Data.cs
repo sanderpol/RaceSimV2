@@ -49,6 +49,14 @@ namespace Controller
 
         public static void AddTracks()
         {
+            var simple = new Track("Circle", 0, 3,
+                new SectionTypes[]
+                {
+                    SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.RightCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.RightCorner
+                });
             var elburg = new Track("Circuit Elburg", 0, 3,
                 new SectionTypes[]
                 {
@@ -90,7 +98,7 @@ namespace Controller
                     SectionTypes.Straight, SectionTypes.RightCorner
                 });
 
-
+            Competition.Tracks.Enqueue(simple);
             Competition.Tracks.Enqueue(elburg);
             Competition.Tracks.Enqueue(oostendorp);
             Competition.Tracks.Enqueue(figure0);

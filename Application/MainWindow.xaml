@@ -13,6 +13,7 @@
                 <GradientStop Color="#FF03A90D" Offset="1"/>
             </LinearGradientBrush>
         </Grid.Background>
+        <Image x:Name="TrackImg" Margin="10,10,10,10"/>
 
 
     </Grid>
