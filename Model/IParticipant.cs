@@ -20,6 +20,6 @@ namespace Model
         GREEN,
         YELLOW,
         BLUE,
-        GRAY
+        GREY
     }
 }

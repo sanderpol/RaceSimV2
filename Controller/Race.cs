@@ -20,7 +20,7 @@ namespace Controller
         
 
         //FinishData
-        private Dictionary<IParticipant, int> LapsDriven { get; set; }
+        public Dictionary<IParticipant, int> LapsDriven { get; set; }
         public int TotalFinishers { get; set; }
         public bool FinshFlag { get; set; }
         public bool RaceFinished { get; set; }
