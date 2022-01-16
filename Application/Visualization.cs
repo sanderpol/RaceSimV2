@@ -235,17 +235,23 @@ namespace Application
             }
             return image;
         }
-        private static int ExtraCarRotation(int direction, bool isLeft, Section section, SectionData sectionData)
+        private static Bitmap ExtraCarRotation(int direction, bool isLeft, Section section, SectionData sectionData, Bitmap car)
         {
-            switch (section.SectionType)
+            car = new Bitmap(car);
+            float distance = isLeft ? sectionData.DistanceLeft : sectionData.DistanceRight;
+            var angle = distance/ Section.SectionLength * 90;
+            if (section.SectionType == SectionTypes.LeftCorner)
             {
-                case SectionTypes.LeftCorner:
-                    return isLeft ? -(sectionData.DistanceLeft / 90 * 100) : -(sectionData.DistanceRight / 90 * 100);
-                case SectionTypes.RightCorner:
-                    return isLeft ? (sectionData.DistanceLeft / 90 * 100) : (sectionData.DistanceRight / 90 * 100);
-                default:
-                    return 0;
+                angle = -angle;
             }
+            using (Graphics g = Graphics.FromImage(car))
+            {
+                g.TranslateTransform((float)car.Width / 2, (float)car.Height / 2);
+                g.RotateTransform(angle);
+                g.TranslateTransform(-(float)car.Width / 2, -(float)car.Height / 2);
+                g.DrawImage(car, new Point(0, 0));
+            }
+            return car;
         }
 
         #endregion
@@ -330,19 +336,27 @@ namespace Application
             {
                 if (sectieData.Left != null)
                 {
-                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)), new Size(CarWidth, CarHeight));
+                    Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)), new Size(CarWidth, CarHeight)), Direction);
                     CalculatePosition(section, sectieData, Direction, isLeft: true, out leftX, out leftY);
-                    //g.RotateTransform(ExtraCarRotation(Direction, false, section, sectieData));
-                    g.DrawImage(RotateCar(car, Direction), new Point(currentX + leftX, currentY + leftY));
+                    if (section.SectionType == SectionTypes.LeftCorner || section.SectionType == SectionTypes.RightCorner)
+                    {
+                        car = ExtraCarRotation(Direction, false, section, sectieData, car);
+                    }
+                    g.DrawImage(car, new Point(currentX + leftX, currentY + leftY));
                 }
                 if (sectieData.Right != null)
                 {
-                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)), new Size(CarWidth, CarHeight));
+
+                    Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)), new Size(CarWidth, CarHeight)), Direction);
                     CalculatePosition(section, sectieData, Direction, isLeft: false, out rightX, out rightY);
-                    //g.RotateTransform(ExtraCarRotation(Direction, false, section, sectieData));
-                    g.DrawImage(RotateCar(car, Direction), new Point(currentX + rightX, currentY + rightY));
+                    if (section.SectionType == SectionTypes.LeftCorner || section.SectionType == SectionTypes.RightCorner)
+                    {
+                        car = ExtraCarRotation(Direction, false, section, sectieData, car)
+                    }
+                    g.DrawImage(car, new Point(currentX + rightX, currentY + rightY));
                 }
             }
+            g.Dispose();
             return filledTrack;
         }
 
@@ -447,7 +461,7 @@ namespace Application
                 switch (direction)
                 {
                     case 0:
-                        //angle = 270 + angle;
+                        angle = 180 + angle;
                         radius = isLeft ? width / 3 * 2 : width / 3;
                         x = (int)(radius * Math.Cos(toRad(angle)));
                         y = (int)(radius * Math.Sin(toRad(angle)));
@@ -455,7 +469,7 @@ namespace Application
                         pY = y + height;
                         return;
                     case 1:
-                        //angle = angle == 0 ? 360 : angle;
+                        angle = 270 + angle;
                         radius = isLeft ? height / 3 * 2 : height / 3;
                         x = (int)(radius * Math.Cos(toRad(angle)));
                         y = (int)(radius * Math.Sin(toRad(angle)));
@@ -463,7 +477,6 @@ namespace Application
                         pY = y + height;
                         return;
                     case 2:
-                        //angle = 90 + angle;
                         radius = isLeft ? width / 3 : width / 3 * 2;
                         x = (int)(radius * Math.Cos(toRad(angle)));
                         y = (int)(radius * Math.Sin(toRad(angle)));
@@ -471,7 +484,7 @@ namespace Application
                         pY = y + 0;
                         return;
                     case 3:
-                        //angle = 180 + angle;
+                        angle = 90 + angle;
                         radius = isLeft ? height / 3 : height / 3 * 2;
                         x = (int)(radius * Math.Cos(toRad(angle)));
                         y = (int)(radius * Math.Sin(toRad(angle)));
