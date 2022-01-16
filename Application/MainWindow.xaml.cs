@@ -23,6 +23,10 @@ namespace Application
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        private CurrentRaceStats CurrentRaceStats { get; set; } 
+        private SeasonStats SeasonStats { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,11 +53,36 @@ namespace Application
         public void OnNextRace(object sender, EventArgs e)
         {
             Cache.EmptyCache();
-            //Data.NextRace();
-            //Visualization.init(Data.CurrentRace);
+            Data.NextRace();
+            Visualization.init(Data.CurrentRace);
             
             
         }
 
+        private void MenuItem_Exit_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+        
+        private void MenuItem_Show_click(object sender, RoutedEventArgs e)
+        {
+            var item = sender as MenuItem;
+            if (item != null)
+            {
+                switch (item.Header)
+                {
+                    case "Race stats":
+                        CurrentRaceStats = new CurrentRaceStats();
+                        Data.NextRaceEvent += ((RaceContext) CurrentRaceStats.DataContext).OnNextRace;
+                        CurrentRaceStats.Show();
+                        break;
+                    case "Competition":
+                        SeasonStats = new SeasonStats();
+                        SeasonStats.Show();
+                        break;
+
+                }
+            }
+        }
     }
 }

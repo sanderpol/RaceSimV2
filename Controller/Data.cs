@@ -35,15 +35,19 @@ namespace Controller
         {
             var maxVerstappen = new Driver("Max Verstappen", 0);
             maxVerstappen.Equipment = new Bolide();
+            maxVerstappen.TeamColor = TeamColors.RED;
             Competition.Participants.Add(maxVerstappen);
-            var lewisHamilton = new Driver("Sebastiaan Vettel", 0);
-            lewisHamilton.Equipment = new Bolide();
-            Competition.Participants.Add(lewisHamilton);
+            var sebastiaanVettel = new Driver("Sebastiaan Vettel", 0);
+            sebastiaanVettel.Equipment = new Bolide();
+            sebastiaanVettel.TeamColor = TeamColors.GREEN;
+            Competition.Participants.Add(sebastiaanVettel);
             var landoNorris = new Driver("Lando Norris", 0);
             landoNorris.Equipment = new Bolide();
+            landoNorris.TeamColor = TeamColors.BLUE;
             Competition.Participants.Add(landoNorris);
             var charlesLegreg = new Driver("Charles Legreg", 0);
             charlesLegreg.Equipment = new Bolide();
+            charlesLegreg.TeamColor = TeamColors.YELLOW;
             Competition.Participants.Add(charlesLegreg);
         }
 

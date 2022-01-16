@@ -14,6 +14,15 @@
             </LinearGradientBrush>
         </Grid.Background>
         <Image x:Name="TrackImg" Margin="10,10,10,10"/>
+        <DockPanel LastChildFill="False">
+            <Menu DockPanel.Dock="Top" Height="20" VerticalAlignment="Top">
+                <MenuItem Header="Menu">
+                    <MenuItem Header="Race stats" Click="MenuItem_Show_click"/>
+                    <MenuItem Header="Competition" Click="MenuItem_Show_click"/>
+                    <MenuItem Header="Close" Click="MenuItem_Exit_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
 
 
     </Grid>

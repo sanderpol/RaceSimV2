@@ -231,9 +231,21 @@ namespace Application
                     break;
                 case 3:
                     image.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                    break;   
+                    break;
             }
             return image;
+        }
+        private static int ExtraCarRotation(int direction, bool isLeft, Section section, SectionData sectionData)
+        {
+            switch (section.SectionType)
+            {
+                case SectionTypes.LeftCorner:
+                    return isLeft ? -(sectionData.DistanceLeft / 90 * 100) : -(sectionData.DistanceRight / 90 * 100);
+                case SectionTypes.RightCorner:
+                    return isLeft ? (sectionData.DistanceLeft / 90 * 100) : (sectionData.DistanceRight / 90 * 100);
+                default:
+                    return 0;
+            }
         }
 
         #endregion
@@ -318,15 +330,17 @@ namespace Application
             {
                 if (sectieData.Left != null)
                 {
-                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)));
+                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)), new Size(CarWidth, CarHeight));
                     CalculatePosition(section, sectieData, Direction, isLeft: true, out leftX, out leftY);
-                    g.DrawImage(RotateCar(car, Direction), new Point (currentX + leftX, currentY + leftY));
+                    //g.RotateTransform(ExtraCarRotation(Direction, false, section, sectieData));
+                    g.DrawImage(RotateCar(car, Direction), new Point(currentX + leftX, currentY + leftY));
                 }
                 if (sectieData.Right != null)
                 {
-                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)));
-                    CalculatePosition(section, sectieData, Direction, isLeft: false, out leftX, out leftY);
-                    g.DrawImage(RotateCar(car, Direction), new Point(currentX + leftX, currentY + leftY));
+                    Bitmap car = new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)), new Size(CarWidth, CarHeight));
+                    CalculatePosition(section, sectieData, Direction, isLeft: false, out rightX, out rightY);
+                    //g.RotateTransform(ExtraCarRotation(Direction, false, section, sectieData));
+                    g.DrawImage(RotateCar(car, Direction), new Point(currentX + rightX, currentY + rightY));
                 }
             }
             return filledTrack;
@@ -348,17 +362,16 @@ namespace Application
                     CalculateStraightPositition(sectieData, direction, isLeft, out pX, out pY);
                     return;
                 case SectionTypes.LeftCorner:
-                    //CalculateCornerPosition(sectieData, direction, isLeft, out pX, out pY);
-                    goto case SectionTypes.Straight;
+                    CalculateLeftCornerPosition(sectieData, direction, isLeft, out pX, out pY);
                     return;
                 case SectionTypes.RightCorner:
-                    //CalculateCornerPosition(sectieData, direction, isLeft, out pX, out pY);
-                    goto case SectionTypes.Straight;
+                    CalculateRightCornerPosition(sectieData, direction, isLeft, out pX, out pY);
                     return;
-
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
             }
-            pX = 0;
-            pY = 0;
         }
 
         private static void CalculateStartPosition(int direction, bool isLeft, out int pX, out int pY)
@@ -383,16 +396,131 @@ namespace Application
                     pX = isLeft ? width / 3 : width / 3 * 2;
                     pY = isLeft ? height / 3 : height / 3 * 2;
                     return;
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
             }
-            pX = 0;
-            pY = 0;
         }
 
         private static void CalculateStraightPositition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
         {
             var width = TileWidth - CarWidth;
             var height = TileHeight - CarHeight;
+            double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
+            switch (direction)
+            {
+                case 0:
+                    pX = isLeft ? width / 3 : width / 3 * 2;
+                    pY = (int)(height * distance / Section.SectionLength);
+                    pY = height - pY;
+                    return;
+                case 1:
+                    pX = (int)(width * distance / Section.SectionLength);
+                    pY = isLeft ? height / 3 : height / 3 * 2;
+                    return;
+                case 2:
+                    pX = isLeft ? width / 3 * 2 : width / 3;
+                    pY = (int)(height * distance / Section.SectionLength);
+                    return;
+                case 3:
+                    pX = (int)(width * distance / Section.SectionLength);
+                    pX = width - pX;
+                    pY = isLeft ? height / 3 * 2 : height / 3;
+                    return;
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
+            }
+        }
 
+        private static void CalculateRightCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        {
+            var width = TileWidth - CarWidth;
+            var height = TileHeight - CarHeight;
+            int radius, x, y;
+            double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
+            double angle = distance / Section.SectionLength * 90;
+            if (angle != 0)
+            {
+                switch (direction)
+                {
+                    case 0:
+                        //angle = 270 + angle;
+                        radius = isLeft ? width / 3 * 2 : width / 3;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + width;
+                        pY = y + height;
+                        return;
+                    case 1:
+                        //angle = angle == 0 ? 360 : angle;
+                        radius = isLeft ? height / 3 * 2 : height / 3;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + 0;
+                        pY = y + height;
+                        return;
+                    case 2:
+                        //angle = 90 + angle;
+                        radius = isLeft ? width / 3 : width / 3 * 2;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + 0;
+                        pY = y + 0;
+                        return;
+                    case 3:
+                        //angle = 180 + angle;
+                        radius = isLeft ? height / 3 : height / 3 * 2;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + width;
+                        pY = y + 0;
+                        return;
+                    default:
+                        pX = 0;
+                        pY = 0;
+                        break;
+                }
+            }
+            else
+            {
+                switch (direction)
+                {
+                    case 0:
+                        radius = isLeft ? width / 3 * 2 : width / 3;
+                        pY = TileHeight;
+                        pX = -radius + height;
+                        return;
+                    case 1:
+                        radius = isLeft ? height / 3 * 2 : height / 3;
+                        pX = radius;
+                        pY = 0;
+                        return;
+                    case 2:
+                        radius = isLeft ? width / 3 : width / 3 * 2;
+                        pX = 0;
+                        pY = TileHeight - radius;
+                        return;
+                    case 3:
+                        radius = isLeft ? height / 3 : height / 3 * 2;
+                        pX = TileWidth - radius;
+                        pY = 0;
+                        return;
+                    default:
+                        pX = 0;
+                        pY = 0;
+                        break;
+                }
+            }
+
+        }
+
+        private static void CalculateLeftCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        {
+            var width = TileWidth - CarWidth;
+            var height = TileHeight - CarHeight;
             switch (direction)
             {
                 case 0:
@@ -413,14 +541,17 @@ namespace Application
                     pX = TileWidth - pX;
                     pY = isLeft ? height / 3 * 2 : height / 3;
                     return;
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
             }
-            pX = 0;
-            pY = 0;
+
         }
 
-        private static void CalculateCornerPosition(Section section, SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        private static double toRad(double angle)
         {
-            throw new NotImplementedException();
+            return (Math.PI / 180) * angle;
         }
 
 
@@ -441,8 +572,9 @@ namespace Application
                     return p.Equipment.IsBroken ? Resources.BlueCar : Resources.BlueCar;
                 case TeamColors.GREY:
                     return p.Equipment.IsBroken ? Resources.GreyCar : Resources.GreyCar;
+                default:
+                    return null;
             }
-            return null;
         }
     }
 }

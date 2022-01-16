@@ -12,7 +12,7 @@ namespace Controller
         public List<IParticipant> Participants { get; set; }
         
         public DateTime StartTime { get; set; }
-        public System.Timers.Timer Timer { get; set; } = new System.Timers.Timer(150);
+        public System.Timers.Timer Timer { get; set; } = new System.Timers.Timer(50);
         public Random Random { get; set; }
 
 
@@ -185,9 +185,10 @@ namespace Controller
                     currentPos.DistanceLeft = SetSectionDistance(currentPos.Left, currentPos.DistanceLeft);
                 }
 
-                if (currentPos.DistanceLeft >= 100)
+                if (currentPos.DistanceLeft >= Section.SectionLength)
                 {
-                    MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, true);
+                    var overlap = currentPos.DistanceLeft - Section.SectionLength;
+                    MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, overlap, true);
                 }
 
                 if (currentPos.Right != null && !currentPos.Right.Equipment.IsBroken)
@@ -195,9 +196,10 @@ namespace Controller
                     currentPos.DistanceRight = SetSectionDistance(currentPos.Right, currentPos.DistanceRight);
                 }
 
-                if (currentPos.DistanceRight >= 100)
+                if (currentPos.DistanceRight >= Section.SectionLength)
                 {
-                    MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, false);
+                    var overlap = currentPos.DistanceRight - Section.SectionLength;
+                    MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, overlap, false);
                 }
 
 
@@ -206,7 +208,7 @@ namespace Controller
         }
 
         private void MoveDriver(Section currentSection, SectionData currentPos, Section targetSection,
-            SectionData targetPos, bool isLeft)
+            SectionData targetPos, int overlap, bool isLeft)
         {
             bool isMoved = false;
             var Next = Random.Next(0, 2);
@@ -215,53 +217,56 @@ namespace Controller
                 if (targetPos.Left != null)
                 {
                     if (isLeft)
-                        currentPos.DistanceLeft = 99;
+                        currentPos.DistanceLeft = Section.SectionLength - 1;
                     else
-                        currentPos.DistanceRight = 99;
+                        currentPos.DistanceRight = Section.SectionLength - 1;
                 }
                 else
                 {
-                    if (currentSection.SectionType == SectionTypes.Finish && currentPos.Left != null)
-                    {
-                        AddLapToDriver(currentPos.Left);
-                    }
-
-                    SetSectionParticipant(isLeft ? currentPos.Left : currentPos.Right, true, targetSection);
-
+                    
+                    SetSectionParticipant(isLeft ? currentPos.Left : currentPos.Right, true, targetSection );
+                    targetPos.DistanceLeft = overlap;
                     isMoved = true;
                 }
+                if (currentSection.SectionType == SectionTypes.Finish && currentPos.Left != null)
+                {
+                    AddLapToDriver(currentPos.Left);
+                }
+
             }
             else
             {
                 if (targetPos.Right != null)
                 {
                     if (isLeft)
-                        currentPos.DistanceLeft = 99;
+                        currentPos.DistanceLeft = Section.SectionLength - 1;
                     else
-                        currentPos.DistanceRight = 99;
+                        currentPos.DistanceRight = Section.SectionLength - 1;
                 }
                 else
                 {
-                    if (currentSection.SectionType == SectionTypes.Finish && currentPos.Right != null)
-                    {
-                        AddLapToDriver(currentPos.Right);
-                    }
+                    
 
                     SetSectionParticipant(isLeft ? currentPos.Left : currentPos.Right, false, targetSection);
+                    targetPos.DistanceRight = overlap;
 
                     isMoved = true;
+                }
+                if (currentSection.SectionType == SectionTypes.Finish && currentPos.Right != null)
+                {
+                    AddLapToDriver(currentPos.Right);
                 }
             }
 
             if (!isMoved) return;
             if (isLeft)
             {
-                Positions[currentSection].DistanceLeft = 0;
+                Positions[currentSection].DistanceLeft = 1;
                 Positions[currentSection].Left = null;
             }
             else
             {
-                Positions[currentSection].DistanceRight = 0;
+                Positions[currentSection].DistanceRight = 1;
                 Positions[currentSection].Right = null;
             }
         }

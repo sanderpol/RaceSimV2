@@ -3,7 +3,8 @@
     public class Section
     {
         public SectionTypes SectionType { get; set; }
-        public readonly int SectionLength = 100;
+
+        public static int SectionLength = 1500;
         public Section(SectionTypes sectionType)
         {
             SectionType = sectionType;
