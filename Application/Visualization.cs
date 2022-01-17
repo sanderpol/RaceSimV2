@@ -40,7 +40,7 @@ namespace Application
         {
             if (track != null)
             {
-                CalcMaxXY(track);
+                CalcMaxXY(track, out MaxWidth, out MaxHeight, out globalX, out globalY); ;
                 var emptyTrack = Cache.CreateEmptyBitmap(MaxWidth, MaxHeight);
                 var filledTrack = SetTrack(emptyTrack, track);
                 var filledWithDriversTrack = SetDrivers(filledTrack, track);
@@ -52,8 +52,8 @@ namespace Application
 
         private static Bitmap SetDrivers(Bitmap filledTrack, Track track)
         {
-            var currentX = -globalX;
-            var currentY = -globalY;
+            var currentX = globalX;
+            var currentY = globalY;
             foreach (Section section in track.Sections)
             {
                 filledTrack = DrawDriver(filledTrack, section, currentX, currentY);
@@ -69,8 +69,8 @@ namespace Application
 
         public static Bitmap SetTrack(Bitmap bitmap, Track track)
         {
-            var currentX = -globalX;
-            var currentY = -globalY;
+            var currentX = globalX;
+            var currentY = globalY;
             Graphics g = Graphics.FromImage(bitmap);
             foreach (Section section in track.Sections)
             {
@@ -235,39 +235,41 @@ namespace Application
             }
             return image;
         }
-        private static Bitmap ExtraCarRotation(int direction, bool isLeft, Section section, SectionData sectionData, Bitmap car)
+        private static Bitmap ExtraCarRotation(bool isLeft, Section section, SectionData sectionData, Bitmap car)
         {
-            car = new Bitmap(car);
-            float distance = isLeft ? sectionData.DistanceLeft : sectionData.DistanceRight;
-            var angle = distance/ Section.SectionLength * 90;
-            if (section.SectionType == SectionTypes.LeftCorner)
+            var returnCar = new Bitmap(car.Width, car.Height);
+            if (section.SectionType == SectionTypes.LeftCorner || section.SectionType == SectionTypes.RightCorner)
             {
-                angle = -angle;
-            }
-            using (Graphics g = Graphics.FromImage(car))
-            {
-                g.TranslateTransform((float)car.Width / 2, (float)car.Height / 2);
+                float distance = isLeft ? sectionData.DistanceLeft : sectionData.DistanceRight;
+                var angle = distance / Section.SectionLength * 90;
+                if (section.SectionType == SectionTypes.LeftCorner)
+                {
+                    angle = -angle;
+                }
+                Graphics g = Graphics.FromImage(returnCar);
+
+                g.TranslateTransform((float)returnCar.Width / 2, (float)returnCar.Height / 2);
                 g.RotateTransform(angle);
-                g.TranslateTransform(-(float)car.Width / 2, -(float)car.Height / 2);
+                g.TranslateTransform(-(float)returnCar.Width / 2, -(float)returnCar.Height / 2);
                 g.DrawImage(car, new Point(0, 0));
+
+                return returnCar;
             }
-            return car;
+            else
+            {
+                return car;
+            }
         }
 
         #endregion
 
-        internal static void Initialize(Race currentRace)
+        public static void CalcMaxXY(Track track, out int maxWidth, out int maxHeight, out int cursorX, out int cursorY)
         {
-            CurrentRace = currentRace;
-        }
-
-        private static void CalcMaxXY(Track track)
-        {
-            int x = TileWidth, y = TileHeight, minX = 0, minY = 0, maxX = 0, maxY = 0;
+            int x = 0, y = 0, minX = 0, minY = 0, maxX = 0, maxY = 0;
             Direction = track.StartingDirection;
+
             foreach (var section in track.Sections.ToList())
             {
-                Direction = SetNew_direction(section.SectionType, Direction);
                 switch (Direction)
                 {
                     case 0:
@@ -287,13 +289,31 @@ namespace Application
                         if (x < minX) minX = x;
                         break;
                 }
+
+                Direction = SetNew_direction(section.SectionType, Direction);
             }
 
-            globalX = -minX;
-            globalY = minY - TileHeight;
+            switch (track.StartingDirection)
+            {
+                case 0:
+                    maxX += TileWidth;
+                    break;
+                case 1:
+                    minY -= TileHeight;
+                    break;
+                case 2:
+                    maxX += TileWidth;
+                    break;
+                case 3:
+                    minY -= TileHeight;
+                    break;
+            }
 
-            MaxWidth = maxX - minX;
-            MaxHeight = maxY - minY + TileHeight;
+            cursorX = -minX;
+            cursorY = -minY - TileHeight;
+
+            maxWidth = maxX - minX;
+            maxHeight = maxY - minY + TileHeight;
         }
         public static int SetNew_direction(SectionTypes sectionType, int dir)
         {
@@ -310,20 +330,6 @@ namespace Application
 
             return dir %= 4;
         }
-        private static void OnDriverChanged(object sender, DriversChangedEventArgs e)
-        {
-            DrawTrack(e.Track);
-        }
-
-        public static void OnNextRace(object sender, NextRaceEventArgs e)
-        {
-            Initialize(e.Race);
-
-            CurrentRace.DriverChanged += OnDriverChanged;
-
-        }
-
-
 
         private static Bitmap DrawDriver(Bitmap filledTrack, Section section, int currentX, int currentY)
         {
@@ -338,10 +344,9 @@ namespace Application
                 {
                     Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)), new Size(CarWidth, CarHeight)), Direction);
                     CalculatePosition(section, sectieData, Direction, isLeft: true, out leftX, out leftY);
-                    if (section.SectionType == SectionTypes.LeftCorner || section.SectionType == SectionTypes.RightCorner)
-                    {
-                        car = ExtraCarRotation(Direction, false, section, sectieData, car);
-                    }
+                    
+                    car = ExtraCarRotation(true, section, sectieData, car);
+                    
                     g.DrawImage(car, new Point(currentX + leftX, currentY + leftY));
                 }
                 if (sectieData.Right != null)
@@ -349,10 +354,8 @@ namespace Application
 
                     Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)), new Size(CarWidth, CarHeight)), Direction);
                     CalculatePosition(section, sectieData, Direction, isLeft: false, out rightX, out rightY);
-                    if (section.SectionType == SectionTypes.LeftCorner || section.SectionType == SectionTypes.RightCorner)
-                    {
-                        car = ExtraCarRotation(Direction, false, section, sectieData, car)
-                    }
+                    car = ExtraCarRotation(false, section, sectieData, car);
+
                     g.DrawImage(car, new Point(currentX + rightX, currentY + rightY));
                 }
             }
@@ -360,6 +363,7 @@ namespace Application
             return filledTrack;
         }
 
+        #region CalcPosition
         private static void CalculatePosition(Section section, SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
         {
             switch (section.SectionType)
@@ -534,30 +538,79 @@ namespace Application
         {
             var width = TileWidth - CarWidth;
             var height = TileHeight - CarHeight;
-            switch (direction)
+            int radius, x, y;
+            double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
+            double angle = - (distance / Section.SectionLength * 90);
+            if (angle != 0)
             {
-                case 0:
-                    pX = isLeft ? width / 3 : width / 3 * 2;
-                    pY = isLeft ? sectieData.DistanceLeft / height * 100 : sectieData.DistanceRight / height * 100;
-                    return;
-                case 1:
-                    pX = isLeft ? sectieData.DistanceLeft / width * 100 : sectieData.DistanceRight / width * 100;
-                    pY = isLeft ? height / 3 : height / 3 * 2;
-                    return;
-                case 2:
-                    pX = isLeft ? width / 3 * 2 : width / 3;
-                    pY = isLeft ? sectieData.DistanceLeft / height * 100 : sectieData.DistanceRight / height * 100;
-                    pY = TileHeight - pY;
-                    return;
-                case 3:
-                    pX = isLeft ? sectieData.DistanceLeft / width * 100 : sectieData.DistanceRight / width * 100;
-                    pX = TileWidth - pX;
-                    pY = isLeft ? height / 3 * 2 : height / 3;
-                    return;
-                default:
-                    pX = 0;
-                    pY = 0;
-                    break;
+                switch (direction)
+                {
+                    case 0:
+                        radius = isLeft ? width / 3 : width / 3 * 2;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + 0;
+                        pY = y + height;
+                        return;
+                    case 1:
+                        angle =  90 + angle;
+                        radius = isLeft ? height / 3 : height / 3 * 2;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + 0;
+                        pY = y + 0;
+                        return;
+                    case 2:
+                        angle = 180 + angle;
+                        radius = isLeft ? width / 3 * 2 : width / 3;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + width;
+                        pY = y + 0;
+                        return;
+                    case 3:
+                        angle = 270 + angle;
+                        radius = isLeft ? height / 3 * 2 : height / 3;
+                        x = (int)(radius * Math.Cos(toRad(angle)));
+                        y = (int)(radius * Math.Sin(toRad(angle)));
+                        pX = x + width;
+                        pY = y + height;
+                        return;
+                    default:
+                        pX = 0;
+                        pY = 0;
+                        break;
+                }
+            }
+            else
+            {
+                switch (direction)
+                {
+                    case 0:
+                        radius = isLeft ? width / 3 : width / 3 * 2;
+                        pY = TileHeight;
+                        pX = -radius + height;
+                        return;
+                    case 1:
+                        radius = isLeft ? width / 3 : width / 3 * 2;
+                        pX = radius;
+                        pY = 0;
+                        return;
+                    case 2:
+                        radius = isLeft ? height / 3 * 2 : height / 3;
+                        pX = 0;
+                        pY = TileHeight - radius;
+                        return;
+                    case 3:
+                        radius = isLeft ? height / 3 * 2 : height / 3;
+                        pX = TileWidth - radius;
+                        pY = 0;
+                        return;
+                    default:
+                        pX = 0;
+                        pY = 0;
+                        break;
+                }
             }
 
         }
@@ -568,7 +621,7 @@ namespace Application
         }
 
 
-
+        #endregion
 
 
         private static string GetCarImage(IParticipant p)
@@ -576,15 +629,15 @@ namespace Application
             switch (p.TeamColor)
             {
                 case TeamColors.RED:
-                    return p.Equipment.IsBroken ? Resources.RedCar : Resources.RedCar;
+                    return p.Equipment.IsBroken ? Resources.RedCarBroken : Resources.RedCar;
                 case TeamColors.GREEN:
-                    return p.Equipment.IsBroken ? Resources.GreenCar : Resources.GreenCar;
+                    return p.Equipment.IsBroken ? Resources.GreenCarBroken : Resources.GreenCar;
                 case TeamColors.YELLOW:
-                    return p.Equipment.IsBroken ? Resources.YellowCar : Resources.YellowCar;
+                    return p.Equipment.IsBroken ? Resources.YellowCarBroken : Resources.YellowCar;
                 case TeamColors.BLUE:
-                    return p.Equipment.IsBroken ? Resources.BlueCar : Resources.BlueCar;
+                    return p.Equipment.IsBroken ? Resources.BlueCarBroken : Resources.BlueCar;
                 case TeamColors.GREY:
-                    return p.Equipment.IsBroken ? Resources.GreyCar : Resources.GreyCar;
+                    return p.Equipment.IsBroken ? Resources.GreyCarBroken : Resources.GreyCar;
                 default:
                     return null;
             }

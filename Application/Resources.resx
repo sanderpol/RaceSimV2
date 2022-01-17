@@ -120,6 +120,9 @@
   <data name="BlueCar" xml:space="preserve">
     <value>.\Images\BlueCar.png</value>
   </data>
+  <data name="BlueCarBroken" xml:space="preserve">
+    <value>.\Images\BlueCarBroken.png</value>
+  </data>
   <data name="Corner" xml:space="preserve">
     <value>.\Images\Corner.png</value>
   </data>
@@ -129,11 +132,20 @@
   <data name="GreenCar" xml:space="preserve">
     <value>.\Images\GreenCar.png</value>
   </data>
+  <data name="GreenCarBroken" xml:space="preserve">
+    <value>.\Images\GreenCarBroken.png</value>
+  </data>
   <data name="GreyCar" xml:space="preserve">
     <value>.\Images\GreyCar.png</value>
   </data>
+  <data name="GreyCarBroken" xml:space="preserve">
+    <value>.\Images\GreyCarBroken.png</value>
+  </data>
   <data name="RedCar" xml:space="preserve">
     <value>.\Images\RedCar.png</value>
+  </data>
+  <data name="RedCarBroken" xml:space="preserve">
+    <value>.\Images\RedCarBroken.png</value>
   </data>
   <data name="Start" xml:space="preserve">
     <value>.\Images\Start.png</value>
@@ -143,5 +155,8 @@
   </data>
   <data name="YellowCar" xml:space="preserve">
     <value>.\Images\YellowCar.png</value>
+  </data>
+  <data name="YellowCarBroken" xml:space="preserve">
+    <value>.\Images\YellowCarBroken.png</value>
   </data>
 </root>

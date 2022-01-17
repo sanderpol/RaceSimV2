@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Controller\Controller.csproj" />
+    <ProjectReference Include="..\RaceSimMain\RaceSimMain.csproj" />
   </ItemGroup>
 
 </Project>

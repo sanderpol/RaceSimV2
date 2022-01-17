@@ -14,6 +14,7 @@ namespace Application
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public Race CurrentRace { get; set; }
+        public string TrackName { get => CurrentRace == null ? "" : CurrentRace.Track.Name; }
         public List<IParticipant> Participants { get; set; }
 
         public void OnNextRace(object sender, NextRaceEventArgs e)

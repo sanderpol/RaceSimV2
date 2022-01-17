@@ -64,5 +64,32 @@ namespace RaceSimMainTest
             Assert.AreEqual(expected, result);
         }
 
+        private static object[] Tracks =
+{
+            new object[] { new Track("Circle", 0, 3,
+                new SectionTypes[]
+                {
+                    SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner
+                }), 40, 20, 32, 26
+            }
+        };
+
+
+
+        [Test]
+        [TestCaseSource("Tracks")]
+        public void Visualisation_Setup_TestMaxXY(Track track, int eMaxWidth, int eMaxHeight, int eCursorX, int eCursorY)
+        {
+            Visualisatie.CalcMaxXY(track, out int maxWidth, out int maxHeight, out int cursorX, out int cursorY);
+            Assert.AreEqual(eMaxWidth, maxWidth);
+            Assert.AreEqual(eMaxHeight, maxHeight);
+            Assert.AreEqual(eCursorX, cursorX);
+            Assert.AreEqual(eCursorY, cursorY);
+        }
+
+
     }
 }

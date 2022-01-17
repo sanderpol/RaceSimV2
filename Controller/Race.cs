@@ -28,7 +28,8 @@ namespace Controller
 
 
         //Event
-        //public event EventHandler RaceFinishedEvent;
+        public event EventHandler RaceFinishedEvent;
+
         public event EventHandler<DriversChangedEventArgs> DriverChanged;
 
         public Race(Track track, List<IParticipant> participants)
@@ -62,7 +63,7 @@ namespace Controller
 
             DriverChanged?.Invoke(this, new DriversChangedEventArgs() { Track = this.Track });
             if (RaceFinished) Console.WriteLine(RaceFinished);
-            //RaceFinishedEvent?.Invoke(this, new EventArgs());
+            RaceFinishedEvent?.Invoke(this, new EventArgs());
         }
 
         private void CheckDriverFinished()

@@ -6,13 +6,12 @@
         xmlns:local="clr-namespace:Application"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:MainContext/>
+    </Window.DataContext>
+
     <Grid>
-        <Grid.Background>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="#FF08610D"/>
-                <GradientStop Color="#FF03A90D" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
+        <Label Content="{Binding TrackName, Mode=OneWay}" Margin="0,20,590,390" FontSize="36" Background="Transparent" Foreground="White"></Label>
         <Image x:Name="TrackImg" Margin="10,10,10,10"/>
         <DockPanel LastChildFill="False">
             <Menu DockPanel.Dock="Top" Height="20" VerticalAlignment="Top">
@@ -23,7 +22,12 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
-
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF08610D"/>
+                <GradientStop Color="#FF03A90D" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
 
     </Grid>
 </Window>

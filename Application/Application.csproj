@@ -9,18 +9,26 @@
 
   <ItemGroup>
     <None Remove="Images\BlueCar.png" />
+    <None Remove="Images\BlueCarBroken.png" />
     <None Remove="Images\Corner.png" />
     <None Remove="Images\Finish.png" />
     <None Remove="Images\GreenCar.png" />
+    <None Remove="Images\GreenCarBroken.png" />
     <None Remove="Images\GreyCar.png" />
+    <None Remove="Images\GreyCarBroken.png" />
     <None Remove="Images\RedCar.png" />
+    <None Remove="Images\RedCarBroken.png" />
     <None Remove="Images\Start.png" />
     <None Remove="Images\Straight.png" />
     <None Remove="Images\YellowCar.png" />
+    <None Remove="Images\YellowCarBroken.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Images\BlueCar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\BlueCarBroken.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\Corner.png">
@@ -32,10 +40,19 @@
     <Content Include="Images\GreenCar.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\GreenCarBroken.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\GreyCar.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\GreyCarBroken.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\RedCar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\RedCarBroken.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\Start.png">
@@ -45,6 +62,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\YellowCar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\YellowCarBroken.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -59,7 +79,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

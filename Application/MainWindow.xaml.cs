@@ -32,7 +32,9 @@ namespace Application
             InitializeComponent();
             Data.Initialize(new Competition());
             Data.NextRaceEvent += OnNextRace;
+            Data.NextRaceEvent += ((MainContext)this.DataContext).OnNextRace;
             Data.NextRace();
+            //Data.CurrentRace.RaceFinishedEvent += OnRaceFinished;
             Data.CurrentRace.DriverChanged += OnDriversChanged;
             
             
@@ -53,10 +55,15 @@ namespace Application
         public void OnNextRace(object sender, EventArgs e)
         {
             Cache.EmptyCache();
-            Data.NextRace();
+            
             Visualization.init(Data.CurrentRace);
             
             
+        }
+
+        public void OnRaceFinished(object sender, EventArgs e)
+        {
+            Data.NextRace();
         }
 
         private void MenuItem_Exit_Click(object sender, RoutedEventArgs e)

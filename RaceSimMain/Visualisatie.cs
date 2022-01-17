@@ -26,7 +26,7 @@ namespace Controller
         internal static void Initialize(Race currentRace)
         {
             CurrentRace = currentRace;
-            CalcMaxXY(currentRace.Track);
+            CalcMaxXY(currentRace.Track, out MaxWidth, out MaxHeight, out CursorX, out CursorY);
             var max = Console.LargestWindowHeight;
             var maxd = Console.LargestWindowWidth;
             Console.SetWindowSize(MaxWidth, Console.LargestWindowHeight);
@@ -41,7 +41,7 @@ namespace Controller
                 string? leftString = GetParticpantStringName(sectionData, isLeft: true);
                 string? rightString = GetParticpantStringName(sectionData, isLeft: false);
 
-                var sectionStrings = SetSectionString(GetSingleSectionStringArray(section.SectionType), leftString,rightString);
+                var sectionStrings = SetSectionString(GetSingleSectionStringArray(section.SectionType), leftString, rightString);
                 var lineY = CursorY;
                 foreach (var line in sectionStrings)
                 {
@@ -59,7 +59,8 @@ namespace Controller
             if (isLeft && sectionData.Left != null)
             {
                 return sectionData.Left.Equipment.IsBroken ? "xx" : sectionData.Left.Name;
-            } else if(!isLeft && sectionData.Right != null)
+            }
+            else if (!isLeft && sectionData.Right != null)
             {
                 return sectionData.Right.Equipment.IsBroken ? "xx" : sectionData.Right.Name;
             }
@@ -172,17 +173,18 @@ namespace Controller
             Console.SetCursorPosition(CursorX, CursorY);
         }
 
-        private static void CalcMaxXY(Track track)
+        public static void CalcMaxXY(Track track, out int maxWidth, out int maxHeight, out int cursorX, out int cursorY)
         {
-            int x = TileWidth, y = TileHeight, minX = 0, minY = 0, maxX = 0, maxY = 0;
+            int x = 0, y = 0, minX = 0, minY = 0, maxX = 0, maxY = 0;
             Direction = track.StartingDirection;
+
             foreach (var section in track.Sections.ToList())
             {
                 switch (Direction)
                 {
                     case 0:
                         y -= TileHeight;
-                        if (y > maxY) maxY = y;
+                        if (y < minY) minY = y;
                         break;
                     case 1:
                         x += TileWidth;
@@ -190,7 +192,7 @@ namespace Controller
                         break;
                     case 2:
                         y += TileHeight;
-                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
                         break;
                     case 3:
                         x -= TileWidth;
@@ -198,21 +200,37 @@ namespace Controller
                         break;
                 }
 
-                Direction =  SetNew_direction(section.SectionType, Direction);
+                Direction = SetNew_direction(section.SectionType, Direction);
             }
 
-            CursorX = -minX;
-            CursorY = -minY + TileHeight + 1;
+            switch (track.StartingDirection)
+            {
+                case 0:
+                    maxX += TileWidth;
+                    break;
+                case 1:
+                    minY -= TileHeight;
+                    break;
+                case 2:
+                    maxX += TileWidth;
+                    break;
+                case 3:
+                    minY -= TileHeight;
+                    break;
+            }
 
-            MaxWidth = maxX - minX + 15;
-            MaxHeight = maxY - minY;
+            cursorX = -minX;
+            cursorY = -minY + TileHeight + 1;
+
+            maxWidth = maxX - minX;
+            maxHeight = maxY - minY;
         }
         public static int SetNew_direction(SectionTypes sectionType, int dir)
         {
             switch (sectionType)
             {
                 case SectionTypes.LeftCorner:
-                    if(dir == 0) return 3;
+                    if (dir == 0) return 3;
                     dir -= 1;
                     break;
                 case SectionTypes.RightCorner:

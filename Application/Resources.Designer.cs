@@ -22,7 +22,7 @@ namespace Application {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Resources {
+    internal class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Application {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Application.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Application {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,16 +63,25 @@ namespace Application {
         /// <summary>
         ///   Looks up a localized string similar to .\Images\BlueCar.png.
         /// </summary>
-        public static string BlueCar {
+        internal static string BlueCar {
             get {
                 return ResourceManager.GetString("BlueCar", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .\Images\BlueCarBroken.png.
+        /// </summary>
+        internal static string BlueCarBroken {
+            get {
+                return ResourceManager.GetString("BlueCarBroken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .\Images\Corner.png.
         /// </summary>
-        public static string Corner {
+        internal static string Corner {
             get {
                 return ResourceManager.GetString("Corner", resourceCulture);
             }
@@ -81,7 +90,7 @@ namespace Application {
         /// <summary>
         ///   Looks up a localized string similar to .\Images\Finish.png.
         /// </summary>
-        public static string Finish {
+        internal static string Finish {
             get {
                 return ResourceManager.GetString("Finish", resourceCulture);
             }
@@ -90,34 +99,61 @@ namespace Application {
         /// <summary>
         ///   Looks up a localized string similar to .\Images\GreenCar.png.
         /// </summary>
-        public static string GreenCar {
+        internal static string GreenCar {
             get {
                 return ResourceManager.GetString("GreenCar", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .\Images\GreenCarBroken.png.
+        /// </summary>
+        internal static string GreenCarBroken {
+            get {
+                return ResourceManager.GetString("GreenCarBroken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .\Images\GreyCar.png.
         /// </summary>
-        public static string GreyCar {
+        internal static string GreyCar {
             get {
                 return ResourceManager.GetString("GreyCar", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .\Images\GreyCarBroken.png.
+        /// </summary>
+        internal static string GreyCarBroken {
+            get {
+                return ResourceManager.GetString("GreyCarBroken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .\Images\RedCar.png.
         /// </summary>
-        public static string RedCar {
+        internal static string RedCar {
             get {
                 return ResourceManager.GetString("RedCar", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .\Images\RedCarBroken.png.
+        /// </summary>
+        internal static string RedCarBroken {
+            get {
+                return ResourceManager.GetString("RedCarBroken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .\Images\Start.png.
         /// </summary>
-        public static string Start {
+        internal static string Start {
             get {
                 return ResourceManager.GetString("Start", resourceCulture);
             }
@@ -126,7 +162,7 @@ namespace Application {
         /// <summary>
         ///   Looks up a localized string similar to .\Images\Straight.png.
         /// </summary>
-        public static string Straight {
+        internal static string Straight {
             get {
                 return ResourceManager.GetString("Straight", resourceCulture);
             }
@@ -135,9 +171,18 @@ namespace Application {
         /// <summary>
         ///   Looks up a localized string similar to .\Images\YellowCar.png.
         /// </summary>
-        public static string YellowCar {
+        internal static string YellowCar {
             get {
                 return ResourceManager.GetString("YellowCar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .\Images\YellowCarBroken.png.
+        /// </summary>
+        internal static string YellowCarBroken {
+            get {
+                return ResourceManager.GetString("YellowCarBroken", resourceCulture);
             }
         }
     }
