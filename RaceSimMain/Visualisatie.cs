@@ -11,8 +11,8 @@ namespace Controller
     {
         private static int Direction;
 
-        private const int TileWidth = 8;
-        private const int TileHeight = 5;
+        public const int TileWidth = 8;
+        public const int TileHeight = 5;
 
         private static int MaxWidth;
         private static int MaxHeight;
@@ -27,9 +27,7 @@ namespace Controller
         {
             CurrentRace = currentRace;
             CalcMaxXY(currentRace.Track, out MaxWidth, out MaxHeight, out CursorX, out CursorY);
-            var max = Console.LargestWindowHeight;
-            var maxd = Console.LargestWindowWidth;
-            Console.SetWindowSize(MaxWidth, Console.LargestWindowHeight);
+            Console.SetWindowSize(MaxWidth, MaxHeight);
             Console.SetCursorPosition(CursorX, CursorY);
         }
 
@@ -41,7 +39,7 @@ namespace Controller
                 string? leftString = GetParticpantStringName(sectionData, isLeft: true);
                 string? rightString = GetParticpantStringName(sectionData, isLeft: false);
 
-                var sectionStrings = SetSectionString(GetSingleSectionStringArray(section.SectionType), leftString, rightString);
+                var sectionStrings = SetSectionString(GetSingleSectionStringArray(Direction, section.SectionType), leftString, rightString);
                 var lineY = CursorY;
                 foreach (var line in sectionStrings)
                 {
@@ -50,11 +48,12 @@ namespace Controller
                     lineY += 1;
                 }
                 Direction = SetNew_direction(section.SectionType, Direction);
-                SetNewCursorPos();
+                SetNewCursorPos(Direction, CursorX, CursorY, out CursorX, out CursorY);
+                Console.SetCursorPosition(CursorX, CursorY);
             }
         }
 
-        private static string? GetParticpantStringName(SectionData sectionData, bool isLeft)
+        public static string? GetParticpantStringName(SectionData sectionData, bool isLeft)
         {
             if (isLeft && sectionData.Left != null)
             {
@@ -70,17 +69,17 @@ namespace Controller
             }
         }
 
-        public static string[] GetSingleSectionStringArray(SectionTypes sectionType)
+        public static string[] GetSingleSectionStringArray(int dir, SectionTypes sectionType)
         {
             return sectionType switch
             {
-                SectionTypes.Straight => (Direction % 2) switch
+                SectionTypes.Straight => (dir % 2) switch
                 {
                     0 => straightVer,
                     1 => straightHor,
                     _ => throw new NotImplementedException()
                 },
-                SectionTypes.RightCorner => Direction switch
+                SectionTypes.RightCorner => dir switch
                 {
                     0 => LeftTurnDown,
                     1 => RightTurnDown,
@@ -88,7 +87,7 @@ namespace Controller
                     3 => RightTurnUp,
                     _ => throw new NotImplementedException()
                 },
-                SectionTypes.LeftCorner => Direction switch
+                SectionTypes.LeftCorner => dir switch
                 {
                     0 => RightTurnDown,
                     1 => LeftTurnUp,
@@ -96,13 +95,13 @@ namespace Controller
                     3 => LeftTurnDown,
                     _ => throw new NotImplementedException()
                 },
-                SectionTypes.StartGrid => (Direction % 2) switch
+                SectionTypes.StartGrid => (dir % 2) switch
                 {
                     0 => startVer,
                     1 => startHor,
                     _ => throw new NotImplementedException()
                 },
-                SectionTypes.Finish => (Direction % 2) switch
+                SectionTypes.Finish => (dir % 2) switch
                 {
                     0 => finishVer,
                     1 => finishHor,
@@ -153,24 +152,32 @@ namespace Controller
             return returnStrings;
         }
 
-        private static void SetNewCursorPos()
+        public static void SetNewCursorPos(int dir, int currentX, int currentY, out int cursorX, out int cursorY)
         {
-            switch (Direction)
+            switch (dir)
             {
                 case 0:
-                    CursorY -= TileHeight;
+                    cursorY = currentY - TileHeight;
+                    cursorX = currentX;
                     break;
                 case 1:
-                    CursorX += TileWidth;
+                    cursorX = currentX + TileWidth;
+                    cursorY = currentY;
                     break;
                 case 2:
-                    CursorY += TileHeight;
+                    cursorY = currentY + TileHeight;
+                    cursorX = currentX;
                     break;
                 case 3:
-                    CursorX -= TileWidth;
+                    cursorX = currentX - TileWidth;
+                    cursorY = currentY;
+                    break;
+                default:
+                    cursorX = currentX;
+                    cursorY = currentY;
                     break;
             }
-            Console.SetCursorPosition(CursorX, CursorY);
+            
         }
 
         public static void CalcMaxXY(Track track, out int maxWidth, out int maxHeight, out int cursorX, out int cursorY)
