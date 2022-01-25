@@ -1,6 +1,8 @@
-﻿using Model;
+﻿
+using Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 
@@ -21,16 +23,19 @@ namespace Controller
 
         //FinishData
         public Dictionary<IParticipant, int> LapsDriven { get; set; }
+        public Dictionary<IParticipant, int> SectionDriven { get; set; }
         public int TotalFinishers { get; set; }
         public bool FinshFlag { get; set; }
         public bool RaceFinished { get; set; }
+
+        public List<DriverRaceTimer> DriverTimers { get; set; }
 
 
 
         //Event
         public event EventHandler RaceFinishedEvent;
-
         public event EventHandler<DriversChangedEventArgs> DriverChanged;
+        public event EventHandler<DriverMovedEventArgs> DriverMoved;
 
         public Race(Track track, List<IParticipant> participants)
         {
@@ -49,11 +54,19 @@ namespace Controller
             RaceFinished = false;
             FinshFlag = false;
             LapsDriven = new Dictionary<IParticipant, int>();
-            Participants.ForEach(item => LapsDriven.Add(item, 1));
+            SectionDriven = new Dictionary<IParticipant, int> { };
+            DriverTimers = new List<DriverRaceTimer>();
+            Participants.ForEach(item => LapsDriven.Add(item, 0));
+            Participants.ForEach(item => SectionDriven.Add(item, 0));
+            Participants.ForEach(item => DriverTimers.Add(new DriverRaceTimer()
+            {
+                Driver = item,
+                LapTimer = new Stopwatch(),
+                TotalRaceTimer = new Stopwatch()
+            }));
             TotalFinishers = 0;
-
-
         }
+
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
@@ -61,18 +74,20 @@ namespace Controller
             MoveDrivers();
             RandomizeBreakOrRepair();
 
-            DriverChanged?.Invoke(this, new DriversChangedEventArgs() { Track = this.Track });
+            DriverChanged?.Invoke(this, new DriversChangedEventArgs() { Track = this.Track, DriverTimers = this.DriverTimers });
             if (RaceFinished) Console.WriteLine(RaceFinished);
             RaceFinishedEvent?.Invoke(this, new EventArgs());
         }
 
+        //TODO: Write test
         private void CheckDriverFinished()
         {
             if (TotalFinishers == Participants.Count) RaceFinished = true;
-            if (LapsDriven.Where(item => item.Value == Track.TotalLaps).Count() > 0) FinshFlag = true;
+            if (LapsDriven.Any(item => item.Value == Track.TotalLaps)) FinshFlag = true;
             if(LapsDriven.All(item => item.Value > Track.TotalLaps)) RaceFinished = true;
         }
 
+        //TODO: Write test
         private void RandomizeBreakOrRepair()
         {
             const int constChance = 10;
@@ -113,11 +128,16 @@ namespace Controller
             return data;
         }
 
-
         public void StartRace()
         {
             Timer.Enabled = true;
             StartTime = DateTime.Now;
+            DriverTimers.ForEach(driverTimer =>
+            {
+                driverTimer.TotalRaceTimer.Start();
+                driverTimer.LapTimer.Start();
+            });
+
         }
         public void SetStartGrid(List<IParticipant> participants)
         {
@@ -147,12 +167,12 @@ namespace Controller
             }
 
             var startGrids = Track.Sections.Where(sec => sec.SectionType.Equals(SectionTypes.StartGrid)).ToList();
-            var startRow = 0;
+            var startRow = 1;
             var side = false;
 
-            for (var i = 0; i < startPositions.Count; i++)
+            for (var i = startPositions.Count; i > 0; i--)
             {
-                SetSectionParticipant(participants[i], side, startGrids[startRow]);
+                SetSectionParticipant(participants[i-1], side, startGrids[startRow]);
                 side = !side;
                 if (i % 2 == 1)
                     startRow++;
@@ -167,9 +187,14 @@ namespace Controller
                 sectionData.Left = participant;
             else
                 sectionData.Right = participant;
+
+            SectionDriven[participant]++;
+            var data = GetDriverDriven(participant);
+            DriverMoved?.Invoke(this, new DriverMovedEventArgs { Track = this.Track, DriverMoved = data });
+
         }
 
-        private void MoveDrivers()
+        public void MoveDrivers()
         {
             LinkedListNode<Section> sectionNodes = Track.Sections.Last;
 
@@ -202,13 +227,13 @@ namespace Controller
                     var overlap = currentPos.DistanceRight - Section.SectionLength;
                     MoveDriver(sectionNodes.Value, currentPos, targetSection, targetPos, overlap, false);
                 }
-
+                
 
                 sectionNodes = sectionNodes.Previous;
             } 
         }
 
-        private void MoveDriver(Section currentSection, SectionData currentPos, Section targetSection,
+        public void MoveDriver(Section currentSection, SectionData currentPos, Section targetSection,
             SectionData targetPos, int overlap, bool isLeft)
         {
             bool isMoved = false;
@@ -245,11 +270,10 @@ namespace Controller
                         currentPos.DistanceRight = Section.SectionLength - 1;
                 }
                 else
-                {
-                    
-
+                {                   
                     SetSectionParticipant(isLeft ? currentPos.Left : currentPos.Right, false, targetSection);
                     targetPos.DistanceRight = overlap;
+                    
 
                     isMoved = true;
                 }
@@ -260,6 +284,9 @@ namespace Controller
             }
 
             if (!isMoved) return;
+            
+            
+
             if (isLeft)
             {
                 Positions[currentSection].DistanceLeft = 1;
@@ -272,29 +299,58 @@ namespace Controller
             }
         }
 
+        public DriverDriven GetDriverDriven(IParticipant participant)
+        {
+            return new DriverDriven()
+            {
+                Participant = participant,
+                lapCount = LapsDriven[participant],
+                sectionCount = SectionDriven[participant]
+            };
+        }
+
         private int SetSectionDistance(IParticipant currentParticipant, int currentDistance)
         {
             return currentDistance + (currentParticipant.Equipment.Performance * currentParticipant.Equipment.Speed);
         }
 
 
-        private void AddLapToDriver(IParticipant driver)
+        public void AddLapToDriver(IParticipant driver)
         {
             if (FinshFlag)
             {
                 TotalFinishers += 1;
             }
             LapsDriven[driver] += 1;
+            SectionDriven[driver] = 0;
+            DriverTimers.Where(item => item.Driver == driver).ToList().ForEach(item => item.LapTimer.Restart());
+            
+
         }
 
         /// <summary>
         /// Randomize the equipment foreach of the participants
         /// </summary>
-        private void RandomizeEquipment()
+        public void RandomizeEquipment()
         {
             Participants.ForEach(p =>p.Equipment.Speed = Random.Next(8, 10));
             Participants.ForEach(p => p.Equipment.Quality = Random.Next(85, 101));
             Participants.ForEach(p => p.Equipment.Performance = Random.Next(8, 10));
         }
+    }
+    
+    public class DriverRaceTimer
+    {
+        public IParticipant Driver { get; set; }
+        public Stopwatch LapTimer { get; set; }
+        public Stopwatch TotalRaceTimer { get; set; }
+    }
+
+    public class DriverDriven
+    {
+        public IParticipant Participant { get; set; }
+        public int lapCount {get; set; }
+        public double sectionCount { get; set; }
+
     }
 }

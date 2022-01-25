@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControllerTest", "Controlle
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaceSimMainTest", "RaceSimMainTest\RaceSimMainTest.csproj", "{655A04B3-E5A3-4525-9236-BBB7FEF7C2BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{42140737-01D1-49A0-8591-181DAB3B8912}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{42140737-01D1-49A0-8591-181DAB3B8912}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApllicationTest", "ApllicationTest\ApllicationTest.csproj", "{6095023E-C4BC-48C7-8634-6D4A284B2A4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{42140737-01D1-49A0-8591-181DAB3B8912}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42140737-01D1-49A0-8591-181DAB3B8912}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42140737-01D1-49A0-8591-181DAB3B8912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6095023E-C4BC-48C7-8634-6D4A284B2A4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6095023E-C4BC-48C7-8634-6D4A284B2A4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6095023E-C4BC-48C7-8634-6D4A284B2A4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6095023E-C4BC-48C7-8634-6D4A284B2A4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

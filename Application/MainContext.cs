@@ -21,7 +21,5 @@ namespace Application
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
-        
-
     }
 }

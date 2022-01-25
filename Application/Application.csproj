@@ -93,4 +93,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Context\" />
+    <Folder Include="Windows\" />
+  </ItemGroup>
+
 </Project>

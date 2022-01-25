@@ -6,7 +6,52 @@
         xmlns:local="clr-namespace:Application"
         mc:Ignorable="d"
         Title="CurrentRaceStats" Height="450" Width="800">
+    <Window.DataContext>
+        <local:RaceContext/>
+    </Window.DataContext>
     <Grid>
-        <TextBlock> hellos</TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition Height="8*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" FontSize="12">Track:</Label>
+                <Label Grid.Column="1" FontSize="12" Content="{Binding TrackName}"></Label>
+                <Label Grid.Column="2" FontSize="12" Content="{Binding CurrentRace.FinshFlag}"/>
+            </Grid>
+            <Grid Grid.Row="3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="1" FontSize ="16" FontWeight="ExtraBold" Content="Classification"/>
+                    <ListView Grid.Row="2" ItemsSource="{Binding DriverListViews}" >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Position" DisplayMemberBinding="{Binding Position }"></GridViewColumn>
+                                <GridViewColumn Header="Lap count" DisplayMemberBinding="{Binding LapCount }"></GridViewColumn>
+                                <GridViewColumn Header="Lap percentage" DisplayMemberBinding="{Binding lapPercentage}"></GridViewColumn>
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding ParticipantName}"></GridViewColumn>
+                                <GridViewColumn Header="Team" DisplayMemberBinding="{Binding TeamColor}"></GridViewColumn>
+                                <GridViewColumn Header="Current laptime" DisplayMemberBinding="{Binding LapStopwatch, StringFormat=mm\\:ss}"></GridViewColumn>
+                                <GridViewColumn Header="Total racetime" DisplayMemberBinding="{Binding RaceStopwatch, StringFormat=mm\\:ss}"></GridViewColumn>
+                                <GridViewColumn Header="Points" DisplayMemberBinding="{Binding ParticpantPoints}"></GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

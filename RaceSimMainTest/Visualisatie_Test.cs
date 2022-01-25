@@ -96,7 +96,7 @@ namespace RaceSimMainTest
 
 
         [Test]
-        [TestCaseSource("Tracks")]
+        [TestCaseSource(nameof(Tracks))]
         public void Visualisation_Setup_TestMaxXY(Track track, int eMaxWidth, int eMaxHeight, int eCursorX, int eCursorY)
         {
             Visualisatie.CalcMaxXY(track, out int maxWidth, out int maxHeight, out int cursorX, out int cursorY);
@@ -161,7 +161,7 @@ namespace RaceSimMainTest
             new object[] { Visualisatie.LeftTurnUp, 2, SectionTypes.RightCorner},
         };
 
-        [Test, TestCaseSource("TrackCourses")]
+        [Test, TestCaseSource(nameof(TrackCourses))]
         public void Visualisation_GetSingleSectionStringArray(string[]expectedResult, int direction, SectionTypes type)
         {
             var result = Visualisatie.GetSingleSectionStringArray(direction, type);

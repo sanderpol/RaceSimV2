@@ -27,6 +27,8 @@ namespace Application
 
         private const int TileHeight = 128, TileWidth = 128;
         private const int CarWidth = 48, CarHeight = 48;
+        public static int GetRemainingTileHeightSpace { get => TileHeight - CarHeight; }
+        public static int GetRemainingTileWidthSpace { get => TileHeight - CarHeight; }
         private static int Direction { get; set; }
         private static int globalX, globalY, MaxWidth, MaxHeight;
         private static Race CurrentRace;
@@ -337,23 +339,24 @@ namespace Application
 
             int leftX, leftY, rightX, rightY;
             var sectieData = Data.CurrentRace != null ? Data.CurrentRace.GetSectionData(section) : null;
+            var isStart = !Data.CurrentRace.LapsDriven.All(d => d.Value == 0);
 
             if (sectieData != null)
             {
                 if (sectieData.Left != null)
                 {
                     Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Left)), new Size(CarWidth, CarHeight)), Direction);
-                    CalculatePosition(section, sectieData, Direction, isLeft: true, out leftX, out leftY);
-                    
+                    CalculatePosition(section, sectieData, Direction, isLeft: true, isStart, out leftX, out leftY);
+
                     car = ExtraCarRotation(true, section, sectieData, car);
-                    
+
                     g.DrawImage(car, new Point(currentX + leftX, currentY + leftY));
                 }
                 if (sectieData.Right != null)
                 {
 
                     Bitmap car = RotateCar(new Bitmap(Cache.GetBitmapFromCache(GetCarImage(sectieData.Right)), new Size(CarWidth, CarHeight)), Direction);
-                    CalculatePosition(section, sectieData, Direction, isLeft: false, out rightX, out rightY);
+                    CalculatePosition(section, sectieData, Direction, isLeft: false, isStart, out rightX, out rightY);
                     car = ExtraCarRotation(false, section, sectieData, car);
 
                     g.DrawImage(car, new Point(currentX + rightX, currentY + rightY));
@@ -364,12 +367,12 @@ namespace Application
         }
 
         #region CalcPosition
-        private static void CalculatePosition(Section section, SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        public static void CalculatePosition(Section section, SectionData sectieData, int direction, bool isLeft, bool isStart, out int pX, out int pY)
         {
             switch (section.SectionType)
             {
                 case SectionTypes.StartGrid:
-                    if (!Data.CurrentRace.LapsDriven.All(d => d.Value == 0))
+                    if (!isStart)
                     {
                         goto case SectionTypes.Straight;
                     }
@@ -392,10 +395,10 @@ namespace Application
             }
         }
 
-        private static void CalculateStartPosition(int direction, bool isLeft, out int pX, out int pY)
+        public static void CalculateStartPosition(int direction, bool isLeft, out int pX, out int pY)
         {
-            var width = TileWidth - CarWidth;
-            var height = TileHeight - CarHeight;
+            var width = GetRemainingTileWidthSpace;
+            var height = GetRemainingTileHeightSpace;
             switch (direction)
             {
                 case 0:
@@ -421,10 +424,10 @@ namespace Application
             }
         }
 
-        private static void CalculateStraightPositition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        public static void CalculateStraightPositition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
         {
-            var width = TileWidth - CarWidth;
-            var height = TileHeight - CarHeight;
+            var width = GetRemainingTileWidthSpace;
+            var height = GetRemainingTileHeightSpace;
             double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
             switch (direction)
             {
@@ -453,169 +456,106 @@ namespace Application
             }
         }
 
-        private static void CalculateRightCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        public static void CalculateLeftCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
         {
-            var width = TileWidth - CarWidth;
-            var height = TileHeight - CarHeight;
+            var width = GetRemainingTileWidthSpace;
+            var height = GetRemainingTileHeightSpace;
+            int radius, x, y;
+            double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
+            double angle = -(distance / Section.SectionLength * 90);
+
+            switch (direction)
+            {
+                case 0:
+                    radius = isLeft ? width / 3 : width / 3 * 2;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + 0;
+                    pY = y + height;
+                    return;
+                case 1:
+                    angle = 90 + angle;
+                    radius = isLeft ? height / 3 : height / 3 * 2;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + 0;
+                    pY = y + 0;
+                    return;
+                case 2:
+                    angle = 180 + angle;
+                    radius = isLeft ? width / 3 * 2 : width / 3;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + width;
+                    pY = y + 0;
+                    return;
+                case 3:
+                    angle = 270 + angle;
+                    radius = isLeft ? height / 3 * 2 : height / 3;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + width;
+                    pY = y + height;
+                    return;
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
+
+            }
+
+        }
+
+        public static void CalculateRightCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
+        {
+            var width = GetRemainingTileWidthSpace;
+            var height = GetRemainingTileHeightSpace;
             int radius, x, y;
             double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
             double angle = distance / Section.SectionLength * 90;
-            if (angle != 0)
+
+            switch (direction)
             {
-                switch (direction)
-                {
-                    case 0:
-                        angle = 180 + angle;
-                        radius = isLeft ? width / 3 * 2 : width / 3;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + width;
-                        pY = y + height;
-                        return;
-                    case 1:
-                        angle = 270 + angle;
-                        radius = isLeft ? height / 3 * 2 : height / 3;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + 0;
-                        pY = y + height;
-                        return;
-                    case 2:
-                        radius = isLeft ? width / 3 : width / 3 * 2;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + 0;
-                        pY = y + 0;
-                        return;
-                    case 3:
-                        angle = 90 + angle;
-                        radius = isLeft ? height / 3 : height / 3 * 2;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + width;
-                        pY = y + 0;
-                        return;
-                    default:
-                        pX = 0;
-                        pY = 0;
-                        break;
-                }
-            }
-            else
-            {
-                switch (direction)
-                {
-                    case 0:
-                        radius = isLeft ? width / 3 * 2 : width / 3;
-                        pY = TileHeight;
-                        pX = -radius + height;
-                        return;
-                    case 1:
-                        radius = isLeft ? height / 3 * 2 : height / 3;
-                        pX = radius;
-                        pY = 0;
-                        return;
-                    case 2:
-                        radius = isLeft ? width / 3 : width / 3 * 2;
-                        pX = 0;
-                        pY = TileHeight - radius;
-                        return;
-                    case 3:
-                        radius = isLeft ? height / 3 : height / 3 * 2;
-                        pX = TileWidth - radius;
-                        pY = 0;
-                        return;
-                    default:
-                        pX = 0;
-                        pY = 0;
-                        break;
-                }
+                case 0:
+                    angle = 180 + angle;
+                    radius = isLeft ? width / 3 * 2 : width / 3;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + width;
+                    pY = y + height;
+                    return;
+                case 1:
+                    angle = 270 + angle;
+                    radius = isLeft ? height / 3 * 2 : height / 3;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + 0;
+                    pY = y + height;
+                    return;
+                case 2:
+                    radius = isLeft ? width / 3 : width / 3 * 2;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + 0;
+                    pY = y + 0;
+                    return;
+                case 3:
+                    angle = 90 + angle;
+                    radius = isLeft ? height / 3 : height / 3 * 2;
+                    x = (int)(radius * Math.Cos(ToRad(angle)));
+                    y = (int)(radius * Math.Sin(ToRad(angle)));
+                    pX = x + width;
+                    pY = y + 0;
+                    return;
+                default:
+                    pX = 0;
+                    pY = 0;
+                    break;
             }
 
         }
 
-        private static void CalculateLeftCornerPosition(SectionData sectieData, int direction, bool isLeft, out int pX, out int pY)
-        {
-            var width = TileWidth - CarWidth;
-            var height = TileHeight - CarHeight;
-            int radius, x, y;
-            double distance = isLeft ? (sectieData.DistanceLeft == 0 ? 1 : sectieData.DistanceLeft) : (sectieData.DistanceRight == 0 ? 1 : sectieData.DistanceRight);
-            double angle = - (distance / Section.SectionLength * 90);
-            if (angle != 0)
-            {
-                switch (direction)
-                {
-                    case 0:
-                        radius = isLeft ? width / 3 : width / 3 * 2;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + 0;
-                        pY = y + height;
-                        return;
-                    case 1:
-                        angle =  90 + angle;
-                        radius = isLeft ? height / 3 : height / 3 * 2;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + 0;
-                        pY = y + 0;
-                        return;
-                    case 2:
-                        angle = 180 + angle;
-                        radius = isLeft ? width / 3 * 2 : width / 3;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + width;
-                        pY = y + 0;
-                        return;
-                    case 3:
-                        angle = 270 + angle;
-                        radius = isLeft ? height / 3 * 2 : height / 3;
-                        x = (int)(radius * Math.Cos(toRad(angle)));
-                        y = (int)(radius * Math.Sin(toRad(angle)));
-                        pX = x + width;
-                        pY = y + height;
-                        return;
-                    default:
-                        pX = 0;
-                        pY = 0;
-                        break;
-                }
-            }
-            else
-            {
-                switch (direction)
-                {
-                    case 0:
-                        radius = isLeft ? width / 3 : width / 3 * 2;
-                        pY = TileHeight;
-                        pX = -radius + height;
-                        return;
-                    case 1:
-                        radius = isLeft ? width / 3 : width / 3 * 2;
-                        pX = radius;
-                        pY = 0;
-                        return;
-                    case 2:
-                        radius = isLeft ? height / 3 * 2 : height / 3;
-                        pX = 0;
-                        pY = TileHeight - radius;
-                        return;
-                    case 3:
-                        radius = isLeft ? height / 3 * 2 : height / 3;
-                        pX = TileWidth - radius;
-                        pY = 0;
-                        return;
-                    default:
-                        pX = 0;
-                        pY = 0;
-                        break;
-                }
-            }
-
-        }
-
-        private static double toRad(double angle)
+        private static double ToRad(double angle)
         {
             return (Math.PI / 180) * angle;
         }

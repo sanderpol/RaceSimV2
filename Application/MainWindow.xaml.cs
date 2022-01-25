@@ -81,6 +81,7 @@ namespace Application
                     case "Race stats":
                         CurrentRaceStats = new CurrentRaceStats();
                         Data.NextRaceEvent += ((RaceContext) CurrentRaceStats.DataContext).OnNextRace;
+                        ((RaceContext)CurrentRaceStats.DataContext).OnNextRace(null, new NextRaceEventArgs() { Race = Data.CurrentRace});
                         CurrentRaceStats.Show();
                         break;
                     case "Competition":

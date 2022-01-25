@@ -12,8 +12,8 @@ namespace Controller
         public static void Initialize(Competition competition)
         {
             Competition = competition;
-            AddParticipants();
-            AddTracks();
+            Competition.Participants = AddParticipants();
+            Competition.Tracks = AddTracks();
         }
 
         public static void NextRace()
@@ -31,35 +31,42 @@ namespace Controller
 
 
 
-        public static void AddParticipants()
+        public static List<IParticipant> AddParticipants()
         {
+            var returnList = new List<IParticipant>();
             var maxVerstappen = new Driver("Max Verstappen", 0);
             maxVerstappen.Equipment = new Bolide();
             maxVerstappen.TeamColor = TeamColors.RED;
-            Competition.Participants.Add(maxVerstappen);
+            returnList.Add(maxVerstappen);
+
             var sebastiaanVettel = new Driver("Sebastiaan Vettel", 0);
             sebastiaanVettel.Equipment = new Bolide();
             sebastiaanVettel.TeamColor = TeamColors.GREEN;
-            Competition.Participants.Add(sebastiaanVettel);
+            returnList.Add(sebastiaanVettel);
+
             var landoNorris = new Driver("Lando Norris", 0);
             landoNorris.Equipment = new Bolide();
             landoNorris.TeamColor = TeamColors.BLUE;
-            Competition.Participants.Add(landoNorris);
+            returnList.Add(landoNorris);
+
             var charlesLegreg = new Driver("Charles Legreg", 0);
             charlesLegreg.Equipment = new Bolide();
             charlesLegreg.TeamColor = TeamColors.YELLOW;
-            Competition.Participants.Add(charlesLegreg);
+            returnList.Add((charlesLegreg));
+
+            return returnList;
         }
 
-        public static void AddTracks()
+        public static Queue<Track> AddTracks()
         {
+            var returnQueue = new Queue<Track>();
             var simpleLeft = new Track("Circle", 0, 3,
                 new SectionTypes[]
                 {
-                    SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.LeftCorner,
-                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
-                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
-                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner
+                    SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.StartGrid, SectionTypes.Finish, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner,
+                    SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.Straight, SectionTypes.LeftCorner
                 });
 
 
@@ -113,10 +120,11 @@ namespace Controller
                     SectionTypes.Straight, SectionTypes.RightCorner
                 });
 
-            //Competition.Tracks.Enqueue(simpleLeft);
-            //Competition.Tracks.Enqueue(elburg);
-            Competition.Tracks.Enqueue(oostendorp);
-            Competition.Tracks.Enqueue(figure0);
+            returnQueue.Enqueue(simpleLeft);
+            returnQueue.Enqueue(elburg);
+            returnQueue.Enqueue(oostendorp);
+            returnQueue.Enqueue(figure0);
+            return returnQueue;
         }
     }
 }

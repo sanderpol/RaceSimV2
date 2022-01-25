@@ -8,5 +8,6 @@ namespace Controller
     public class DriversChangedEventArgs : EventArgs
     {
         public Track Track { get; set; }
+        public List<DriverRaceTimer> DriverTimers { get; set;}
     }
 }
